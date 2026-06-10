@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from './supabase';
 import { 
   ShieldCheck, Zap, Activity, History, 
   Terminal, Cpu, ChevronRight,
-  CheckCircle2, X, MessageSquare
+  CheckCircle2, X, MessageSquare, Key, LogOut
 } from 'lucide-react';
 import { 
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
@@ -51,20 +52,39 @@ interface AuditRecord {
 }
 
 export default function App() {
+  const [session, setSession] = useState<any>(null);
   const [history, setHistory] = useState<AuditRecord[]>([]);
   const [stats, setStats] = useState<any>({ totalAudits: 0, totalHeals: 0, averageHealth: 0 });
   const [liveNodes, setLiveNodes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPR, setSelectedPR] = useState<AuditRecord | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!session) {
+      setTimeout(() => setLoading(false), 600);
+      return;
+    }
+
     const fetchData = async () => {
       try {
         const res = await axios.get('/api/history');
         setHistory(res.data.audits || []);
         setStats(res.data.stats || { totalAudits: 0, totalHeals: 0, averageHealth: 0 });
       } catch (e) { console.error("Fetch failed", e); }
-      finally { setTimeout(() => setLoading(false), 600); }
+      finally { setLoading(false); }
     };
     fetchData();
 
@@ -73,7 +93,7 @@ export default function App() {
     });
 
     return () => { socket.off('node_results'); };
-  }, []);
+  }, [session]);
 
   if (loading) {
     return (
@@ -84,6 +104,10 @@ export default function App() {
         <p style={{ marginTop: 16, fontSize: 12, letterSpacing: '0.2em', textTransform: 'uppercase', color: T.outlineVar }}>Initializing Fleet Console</p>
       </div>
     );
+  }
+
+  if (!session) {
+    return <LoginScreen />;
   }
 
   return (
@@ -104,8 +128,17 @@ export default function App() {
             <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-0.02em', margin: 0 }}>
               AUTONOMOUS <span style={{ background: `linear-gradient(to right, ${T.primary}, #a78bfa)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>AI CODE REVIEWER</span>
             </h1>
-            <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: T.outline, margin: 0 }}>Fleet Observability Engine · v1.2</p>
+            <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: T.outline, margin: 0 }}>Fleet Observability Engine · v2.0 SaaS</p>
           </div>
+        </div>
+        
+        <div style={{ display: 'flex', gap: 12 }}>
+          <button onClick={() => setShowSettings(true)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', background: T.surfHigh, border: `1px solid ${T.outlineVar}30`, borderRadius: 12, color: T.onSurface, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>
+            <Key size={16} color={T.emerald} /> API Settings
+          </button>
+          <button onClick={() => supabase.auth.signOut()} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', background: T.surfHigh, border: `1px solid ${T.outlineVar}30`, borderRadius: 12, color: T.rose, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>
+            <LogOut size={16} /> Logout
+          </button>
         </div>
       </motion.header>
 
@@ -213,7 +246,8 @@ export default function App() {
 
       {/* OVERLAYS */}
       <LogModal pr={selectedPR} onClose={() => setSelectedPR(null)} />
-      <Chatbot />
+      <SettingsModal session={session} isOpen={showSettings} onClose={() => setShowSettings(false)} />
+      <Chatbot session={session} />
 
       <style>{`
         .mesh-gradient {
@@ -222,6 +256,90 @@ export default function App() {
                       radial-gradient(circle at 90% 80%, ${T.emerald}08 0%, transparent 40%);
         }
       `}</style>
+    </div>
+  );
+}
+
+function LoginScreen() {
+  const handleLogin = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'github',
+      options: { redirectTo: window.location.origin }
+    });
+  };
+
+  return (
+    <div style={{ minHeight: '100vh', background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Outfit', sans-serif" }}>
+      <div className="mesh-gradient" />
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+        style={{ background: T.surfLow, padding: 48, borderRadius: 24, border: `1px solid ${T.outlineVar}30`, textAlign: 'center', maxWidth: 400, zIndex: 2 }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
+          <div style={{ padding: 16, background: `linear-gradient(135deg, ${T.primaryCont}, #6366f1)`, borderRadius: 20, boxShadow: `0 8px 32px ${T.primaryCont}40` }}>
+            <ShieldCheck size={32} color="#fff" />
+          </div>
+        </div>
+        <h1 style={{ fontSize: 24, fontWeight: 700, color: T.onSurface, margin: '0 0 12px' }}>PR Guardian SaaS</h1>
+        <p style={{ color: T.outlineVar, fontSize: 14, margin: '0 0 32px', lineHeight: 1.5 }}>
+          Sign in to secure your repository and orchestrate autonomous AI code reviews.
+        </p>
+        <button onClick={handleLogin}
+          style={{ width: '100%', padding: '14px 20px', background: T.onSurface, color: T.bg, border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, cursor: 'pointer', boxShadow: '0 4px 12px rgba(255,255,255,0.1)' }}>
+          Continue with GitHub
+        </button>
+      </motion.div>
+    </div>
+  );
+}
+
+function SettingsModal({ session, isOpen, onClose }: any) {
+  const [apiKey, setApiKey] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      supabase.from('profiles').select('gemini_api_key').eq('id', session.user.id).single()
+        .then(({ data }) => { if (data?.gemini_api_key) setApiKey(data.gemini_api_key); });
+    }
+  }, [isOpen]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    const githubUsername = session.user.user_metadata?.user_name || session.user.user_metadata?.preferred_username;
+    await supabase.from('profiles').upsert({ 
+      id: session.user.id, 
+      gemini_api_key: apiKey,
+      github_username: githubUsername
+    });
+    setSaving(false);
+    onClose();
+  };
+
+  if (!isOpen) return null;
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: '#000c', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 40 }}>
+      <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+        style={{ background: T.surfLow, width: '100%', maxWidth: 500, borderRadius: 24, padding: 32, border: `1px solid ${T.outlineVar}40`, boxShadow: '0 24px 64px -12px #000' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+          <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Key size={20} color={T.emerald} /> Bring Your Own Key
+          </h2>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: T.outline, cursor: 'pointer' }}><X size={20} /></button>
+        </div>
+        <p style={{ fontSize: 13, color: T.outlineVar, marginBottom: 24, lineHeight: 1.5 }}>
+          PR Guardian runs entirely free of cost. To enable AI analysis on your repositories, please securely provide your own Gemini API Key. This is encrypted in your personal vault.
+        </p>
+        <input 
+          type="password" 
+          value={apiKey} 
+          onChange={(e) => setApiKey(e.target.value)} 
+          placeholder="AIzaSy..."
+          style={{ width: '100%', padding: '14px 16px', background: T.surfMid, border: `1px solid ${T.outlineVar}40`, borderRadius: 12, color: T.onSurface, fontSize: 14, marginBottom: 24, outline: 'none' }}
+        />
+        <button onClick={handleSave} disabled={saving}
+          style={{ width: '100%', padding: '14px', background: `linear-gradient(135deg, ${T.emerald}, ${T.emeraldCont})`, color: '#fff', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
+          {saving ? 'Encrypting & Saving...' : 'Save API Key'}
+        </button>
+      </motion.div>
     </div>
   );
 }
@@ -315,7 +433,7 @@ function CustomTooltip({ active, payload, label }: any) {
   return null;
 }
 
-function Chatbot() {
+function Chatbot({ session }: any) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [chat, setChat] = useState<{role: 'user' | 'bot', text: string}[]>([]);
@@ -327,7 +445,8 @@ function Chatbot() {
     setQuery('');
     setLoading(true);
     try {
-      const res = await axios.post('/api/chat', { query });
+      const githubUsername = session.user.user_metadata?.user_name || session.user.user_metadata?.preferred_username;
+      const res = await axios.post('/api/chat', { query, githubUsername });
       setChat(prev => [...prev, { role: 'bot', text: res.data.answer }]);
     } catch (e) {
       setChat(prev => [...prev, { role: 'bot', text: 'Error: Failed to fetch response from core.' }]);

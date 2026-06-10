@@ -1,6 +1,6 @@
 import { HumanMessage } from "@langchain/core/messages";
 import { Annotation } from "@langchain/langgraph";
-import { reviewLLM } from "../ai/llm";
+import { getReviewLLM } from "../ai/provider";
 import { invokeWithRetry } from "../ai/utils";
 import { getRepoConfig } from "../server/config";
 
@@ -11,6 +11,7 @@ export interface LineComment {
 }
 
 export interface ReviewState {
+  geminiApiKey: string;
   owner: string;
   repo: string;
   pullNumber: number;
@@ -29,6 +30,7 @@ export interface ReviewState {
 }
 
 export const StateAnnotation = Annotation.Root({
+  geminiApiKey: Annotation<string>,
   owner: Annotation<string>,
   repo: Annotation<string>,
   pullNumber: Annotation<number>,
@@ -86,7 +88,7 @@ ${state.prDiff.slice(0, 1500)}
 Respond with ONLY a comma-separated list of domain names, nothing else. Example: Security, Logic`;
 
   try {
-    const response = await invokeWithRetry(reviewLLM, [new HumanMessage(prompt)]);
+    const response = await invokeWithRetry(getReviewLLM(state.geminiApiKey), [new HumanMessage(prompt)]);
     let domains = response.content
       .toString()
       .split(",")

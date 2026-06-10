@@ -1,6 +1,6 @@
 import { HumanMessage } from "@langchain/core/messages";
 import { ReviewState } from "./manager";
-import { premiumLLM } from "../ai/provider";
+import { getReviewLLM, getPremiumLLM } from "../ai/provider";
 import { retrieveRelevantContext } from "../indexing/retriever";
 import { invokeWithRetry } from "../ai/utils";
 
@@ -41,7 +41,7 @@ If integration is safe and no cross-file issues are found, return exactly [] wra
 Do not include any text outside the tags.`;
 
   try {
-    const response = await invokeWithRetry(premiumLLM, [new HumanMessage(prompt)]);
+    const response = await invokeWithRetry(getPremiumLLM(state.geminiApiKey), [new HumanMessage(prompt)]);
     const content = response.content?.toString() || "";
 
     if (!content) {

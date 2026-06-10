@@ -554,11 +554,75 @@
         "FILE: perf_bench_2.js\nERROR:\nnode:internal/modules/cjs/loader:1386\r\n  throw err;\r\n  ^\r\n\r\nError: Cannot find module './demo'\r\nRequire stack:\r\n- D:\\project-ai-code-reviewer\\docker_tests\\perf_bench_2.js\r\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)\r\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)\r\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)\r\n    at Function._load (node:internal/modules/cjs/loader:1192:37)\r\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\r\n    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)\r\n    at Module.require (node:internal/modules/cjs/loader:1463:12)\r\n    at require (node:internal/modules/helpers:147:16)\r\n    at Object.<anonymous> (D:\\project-ai-code-reviewer\\docker_tests\\perf_bench_2.js:1:30)\r\n    at Module._compile (node:internal/modules/cjs/loader:1706:14) {\r\n  code: 'MODULE_NOT_FOUND',\r\n  requireStack: [ 'D:\\\\project-ai-code-reviewer\\\\docker_tests\\\\perf_bench_2.js' ]\r\n}\r\n\r\nNode.js v22.19.0\n\nFILE: security_exploit_2.js\nERROR:\nnode:internal/modules/cjs/loader:1386\r\n  throw err;\r\n  ^\r\n\r\nError: Cannot find module './demo'\r\nRequire stack:\r\n- D:\\project-ai-code-reviewer\\docker_tests\\security_exploit_2.js\r\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)\r\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)\r\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)\r\n    at Function._load (node:internal/modules/cjs/loader:1192:37)\r\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\r\n    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)\r\n    at Module.require (node:internal/modules/cjs/loader:1463:12)\r\n    at require (node:internal/modules/helpers:147:16)\r\n    at Object.<anonymous> (D:\\project-ai-code-reviewer\\docker_tests\\security_exploit_2.js:1:30)\r\n    at Module._compile (node:internal/modules/cjs/loader:1706:14) {\r\n  code: 'MODULE_NOT_FOUND',\r\n  requireStack: [\r\n    'D:\\\\project-ai-code-reviewer\\\\docker_tests\\\\security_exploit_2.js'\r\n  ]\r\n}\r\n\r\nNode.js v22.19.0\n\n"
       ],
       "timestamp": "2026-06-10T08:02:08.756Z"
+    },
+    {
+      "id": "pr_19_1781093261878",
+      "owner": "RISHAV-WEB-AI",
+      "repo": "Civic-sense",
+      "pullNumber": 19,
+      "title": "Add test harness with intentional bugs for AI review",
+      "status": "Failed",
+      "healthScore": 70,
+      "vulnerabilities": [
+        "SECURITY"
+      ],
+      "logs": [
+        "FILE: perf_bench_2.js\nERROR:\nnode:internal/modules/cjs/loader:1386\r\n  throw err;\r\n  ^\r\n\r\nError: Cannot find module './demo'\r\nRequire stack:\r\n- D:\\project-ai-code-reviewer\\docker_tests\\perf_bench_2.js\r\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)\r\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)\r\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)\r\n    at Function._load (node:internal/modules/cjs/loader:1192:37)\r\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\r\n    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)\r\n    at Module.require (node:internal/modules/cjs/loader:1463:12)\r\n    at require (node:internal/modules/helpers:147:16)\r\n    at Object.<anonymous> (D:\\project-ai-code-reviewer\\docker_tests\\perf_bench_2.js:1:30)\r\n    at Module._compile (node:internal/modules/cjs/loader:1706:14) {\r\n  code: 'MODULE_NOT_FOUND',\r\n  requireStack: [ 'D:\\\\project-ai-code-reviewer\\\\docker_tests\\\\perf_bench_2.js' ]\r\n}\r\n\r\nNode.js v22.19.0\n\nFILE: security_exploit_2.js\nERROR:\nnode:internal/modules/cjs/loader:1386\r\n  throw err;\r\n  ^\r\n\r\nError: Cannot find module './demo'\r\nRequire stack:\r\n- D:\\project-ai-code-reviewer\\docker_tests\\security_exploit_2.js\r\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)\r\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)\r\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)\r\n    at Function._load (node:internal/modules/cjs/loader:1192:37)\r\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\r\n    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)\r\n    at Module.require (node:internal/modules/cjs/loader:1463:12)\r\n    at require (node:internal/modules/helpers:147:16)\r\n    at Object.<anonymous> (D:\\project-ai-code-reviewer\\docker_tests\\security_exploit_2.js:1:30)\r\n    at Module._compile (node:internal/modules/cjs/loader:1706:14) {\r\n  code: 'MODULE_NOT_FOUND',\r\n  requireStack: [\r\n    'D:\\\\project-ai-code-reviewer\\\\docker_tests\\\\security_exploit_2.js'\r\n  ]\r\n}\r\n\r\nNode.js v22.19.0\n\n"
+      ],
+      "timestamp": "2026-06-10T12:07:41.878Z"
+    },
+    {
+      "id": "pr_19_1781095046248",
+      "owner": "RISHAV-WEB-AI",
+      "repo": "Civic-sense",
+      "pullNumber": 19,
+      "title": "Add test harness with intentional bugs for AI review",
+      "status": "Failed",
+      "healthScore": 70,
+      "vulnerabilities": [
+        "SECURITY"
+      ],
+      "logs": [
+        "FILE: perf_bench_2.js\nERROR:\nnode:internal/modules/cjs/loader:1386\r\n  throw err;\r\n  ^\r\n\r\nError: Cannot find module './demo'\r\nRequire stack:\r\n- D:\\project-ai-code-reviewer\\docker_tests\\perf_bench_2.js\r\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)\r\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)\r\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)\r\n    at Function._load (node:internal/modules/cjs/loader:1192:37)\r\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\r\n    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)\r\n    at Module.require (node:internal/modules/cjs/loader:1463:12)\r\n    at require (node:internal/modules/helpers:147:16)\r\n    at Object.<anonymous> (D:\\project-ai-code-reviewer\\docker_tests\\perf_bench_2.js:1:30)\r\n    at Module._compile (node:internal/modules/cjs/loader:1706:14) {\r\n  code: 'MODULE_NOT_FOUND',\r\n  requireStack: [ 'D:\\\\project-ai-code-reviewer\\\\docker_tests\\\\perf_bench_2.js' ]\r\n}\r\n\r\nNode.js v22.19.0\n\nFILE: security_exploit_2.js\nERROR:\nnode:internal/modules/cjs/loader:1386\r\n  throw err;\r\n  ^\r\n\r\nError: Cannot find module './demo'\r\nRequire stack:\r\n- D:\\project-ai-code-reviewer\\docker_tests\\security_exploit_2.js\r\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)\r\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)\r\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)\r\n    at Function._load (node:internal/modules/cjs/loader:1192:37)\r\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\r\n    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)\r\n    at Module.require (node:internal/modules/cjs/loader:1463:12)\r\n    at require (node:internal/modules/helpers:147:16)\r\n    at Object.<anonymous> (D:\\project-ai-code-reviewer\\docker_tests\\security_exploit_2.js:1:30)\r\n    at Module._compile (node:internal/modules/cjs/loader:1706:14) {\r\n  code: 'MODULE_NOT_FOUND',\r\n  requireStack: [\r\n    'D:\\\\project-ai-code-reviewer\\\\docker_tests\\\\security_exploit_2.js'\r\n  ]\r\n}\r\n\r\nNode.js v22.19.0\n\n"
+      ],
+      "timestamp": "2026-06-10T12:37:26.248Z"
+    },
+    {
+      "id": "pr_19_1781106489137",
+      "owner": "RISHAV-WEB-AI",
+      "repo": "Civic-sense",
+      "pullNumber": 19,
+      "title": "Add test harness with intentional bugs for AI review",
+      "status": "Failed",
+      "healthScore": 70,
+      "vulnerabilities": [
+        "SECURITY"
+      ],
+      "logs": [
+        "FILE: perf_bench_2.js\nERROR:\nnode:internal/modules/cjs/loader:1386\r\n  throw err;\r\n  ^\r\n\r\nError: Cannot find module './demo'\r\nRequire stack:\r\n- D:\\project-ai-code-reviewer\\docker_tests\\perf_bench_2.js\r\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)\r\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)\r\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)\r\n    at Function._load (node:internal/modules/cjs/loader:1192:37)\r\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\r\n    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)\r\n    at Module.require (node:internal/modules/cjs/loader:1463:12)\r\n    at require (node:internal/modules/helpers:147:16)\r\n    at Object.<anonymous> (D:\\project-ai-code-reviewer\\docker_tests\\perf_bench_2.js:1:30)\r\n    at Module._compile (node:internal/modules/cjs/loader:1706:14) {\r\n  code: 'MODULE_NOT_FOUND',\r\n  requireStack: [ 'D:\\\\project-ai-code-reviewer\\\\docker_tests\\\\perf_bench_2.js' ]\r\n}\r\n\r\nNode.js v22.19.0\n\nFILE: security_exploit_2.js\nERROR:\nnode:internal/modules/cjs/loader:1386\r\n  throw err;\r\n  ^\r\n\r\nError: Cannot find module './demo'\r\nRequire stack:\r\n- D:\\project-ai-code-reviewer\\docker_tests\\security_exploit_2.js\r\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)\r\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)\r\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)\r\n    at Function._load (node:internal/modules/cjs/loader:1192:37)\r\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\r\n    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)\r\n    at Module.require (node:internal/modules/cjs/loader:1463:12)\r\n    at require (node:internal/modules/helpers:147:16)\r\n    at Object.<anonymous> (D:\\project-ai-code-reviewer\\docker_tests\\security_exploit_2.js:1:30)\r\n    at Module._compile (node:internal/modules/cjs/loader:1706:14) {\r\n  code: 'MODULE_NOT_FOUND',\r\n  requireStack: [\r\n    'D:\\\\project-ai-code-reviewer\\\\docker_tests\\\\security_exploit_2.js'\r\n  ]\r\n}\r\n\r\nNode.js v22.19.0\n\n"
+      ],
+      "timestamp": "2026-06-10T15:48:09.137Z"
+    },
+    {
+      "id": "pr_19_1781110165566",
+      "owner": "RISHAV-WEB-AI",
+      "repo": "Civic-sense",
+      "pullNumber": 19,
+      "title": "test",
+      "status": "Failed",
+      "healthScore": 60,
+      "vulnerabilities": [
+        "SECURITY"
+      ],
+      "logs": [
+        "FILE: perf_bench_25.js\nERROR:\n'sleep' is not recognized as an internal or external command,\r\noperable program or batch file.\r\nnode:child_process:990\r\n    throw err;\r\n    ^\r\n\r\nError: Command failed: sleep 1\r\n'sleep' is not recognized as an internal or external command,\r\r\noperable program or batch file.\r\r\n\r\n    at genericNodeError (node:internal/errors:983:15)\r\n    at wrappedFn (node:internal/errors:537:14)\r\n    at checkExecSyncError (node:child_process:915:11)\r\n    at execSync (node:child_process:987:15)\r\n    at testBlockingIO (D:\\project-ai-code-reviewer\\docker_tests\\perf_bench_25.js:7:5)\r\n    at Object.<anonymous> (D:\\project-ai-code-reviewer\\docker_tests\\perf_bench_25.js:15:1)\r\n    at Module._compile (node:internal/modules/cjs/loader:1706:14)\r\n    at Object..js (node:internal/modules/cjs/loader:1839:10)\r\n    at Module.load (node:internal/modules/cjs/loader:1441:32)\r\n    at Function._load (node:internal/modules/cjs/loader:1263:12) {\r\n  status: 1,\r\n  signal: null,\r\n  output: [\r\n    null,\r\n    Buffer(0) [Uint8Array] [],\r\n    Buffer(96) [Uint8Array] [\r\n       39, 115, 108, 101, 101, 112,  39,  32, 105, 115,  32, 110,\r\n      111, 116,  32, 114, 101,  99, 111, 103, 110, 105, 122, 101,\r\n      100,  32,  97, 115,  32,  97, 110,  32, 105, 110, 116, 101,\r\n      114, 110,  97, 108,  32, 111, 114,  32, 101, 120, 116, 101,\r\n      114, 110,  97, 108,  32,  99, 111, 109, 109,  97, 110, 100,\r\n       44,  13,  10, 111, 112, 101, 114,  97,  98, 108, 101,  32,\r\n      112, 114, 111, 103, 114,  97, 109,  32, 111, 114,  32,  98,\r\n       97, 116,  99, 104,  32, 102, 105, 108, 101,  46,  13,  10\r\n    ]\r\n  ],\r\n  pid: 37024,\r\n  stdout: Buffer(0) [Uint8Array] [],\r\n  stderr: Buffer(96) [Uint8Array] [\r\n     39, 115, 108, 101, 101, 112,  39,  32, 105, 115,  32, 110,\r\n    111, 116,  32, 114, 101,  99, 111, 103, 110, 105, 122, 101,\r\n    100,  32,  97, 115,  32,  97, 110,  32, 105, 110, 116, 101,\r\n    114, 110,  97, 108,  32, 111, 114,  32, 101, 120, 116, 101,\r\n    114, 110,  97, 108,  32,  99, 111, 109, 109,  97, 110, 100,\r\n     44,  13,  10, 111, 112, 101, 114,  97,  98, 108, 101,  32,\r\n    112, 114, 111, 103, 114,  97, 109,  32, 111, 114,  32,  98,\r\n     97, 116,  99, 104,  32, 102, 105, 108, 101,  46,  13,  10\r\n  ]\r\n}\r\n\r\nNode.js v22.19.0\n\nFILE: security_exploit_26.js\nERROR:\nnode:internal/modules/cjs/loader:1386\r\n  throw err;\r\n  ^\r\n\r\nError: Cannot find module './t2'\r\nRequire stack:\r\n- D:\\project-ai-code-reviewer\\docker_tests\\security_exploit_26.js\r\n    at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)\r\n    at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)\r\n    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)\r\n    at Function._load (node:internal/modules/cjs/loader:1192:37)\r\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)\r\n    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)\r\n    at Module.require (node:internal/modules/cjs/loader:1463:12)\r\n    at require (node:internal/modules/helpers:147:16)\r\n    at Object.<anonymous> (D:\\project-ai-code-reviewer\\docker_tests\\security_exploit_26.js:1:31)\r\n    at Module._compile (node:internal/modules/cjs/loader:1706:14) {\r\n  code: 'MODULE_NOT_FOUND',\r\n  requireStack: [\r\n    'D:\\\\project-ai-code-reviewer\\\\docker_tests\\\\security_exploit_26.js'\r\n  ]\r\n}\r\n\r\nNode.js v22.19.0\n\n"
+      ],
+      "timestamp": "2026-06-10T16:49:25.566Z"
     }
   ],
   "stats": {
-    "totalAudits": 29,
+    "totalAudits": 33,
     "totalHeals": 2,
-    "averageHealth": 71
+    "averageHealth": 70
   }
 }

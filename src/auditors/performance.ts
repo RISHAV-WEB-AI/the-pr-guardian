@@ -1,6 +1,6 @@
 import { HumanMessage } from "@langchain/core/messages";
 import { ReviewState, LineComment } from "./manager";
-import { reviewLLM } from "../ai/llm";
+import { getReviewLLM, getPremiumLLM } from "../ai/provider";
 import { invokeWithRetry } from "../ai/utils";
 
 const MAX_DIFF_CHARS = 12000;
@@ -41,7 +41,7 @@ If performance is optimal, return {"findings": []} wrapped in <json> tags.
 Do not include any text outside the tags.`;
 
   try {
-    const response = await invokeWithRetry(reviewLLM, [new HumanMessage(prompt)]);
+    const response = await invokeWithRetry(getReviewLLM(state.geminiApiKey), [new HumanMessage(prompt)]);
     const content = response.content?.toString() || "";
 
     if (!content) {

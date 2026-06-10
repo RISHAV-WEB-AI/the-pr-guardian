@@ -10,8 +10,9 @@ import { getPRDiff, postReviewFeedback } from "./server/github";
 import { buildGraph } from "./orchestrator/graph";
 import { indexCodebase } from "./indexing/indexer";
 import { retrieveRelevantContext } from "./indexing/retriever";
-import { reviewLLM } from "./ai/provider";
+import { getReviewLLM } from "./ai/provider";
 import { saveAuditRecord, getHistory } from "./server/history";
+import { getApiKeyForUser } from "./db/supabase";
 import { HumanMessage } from "@langchain/core/messages";
 
 const app = express();
@@ -40,13 +41,18 @@ app.get("/api/history", async (req, res) => {
 // Dashboard Chatbot API
 app.post("/api/chat", async (req, res) => {
     try {
-        const { query } = req.body;
+        const { query, githubUsername } = req.body;
         if (!query) return res.status(400).json({ error: "Query is required" });
+        if (!githubUsername) return res.status(400).json({ error: "GitHub username is required" });
+
+        const apiKey = await getApiKeyForUser(githubUsername);
+        if (!apiKey) return res.status(403).json({ error: "No API key configured." });
         
         const context = await retrieveRelevantContext(query, 5);
         const prompt = `You are an expert autonomous AI developer assistant. Answer the user's question based on the provided codebase context.\n\nCodebase Context:\n${context || "No relevant codebase context found."}\n\nQuestion:\n${query}`;
         
-        const response = await reviewLLM.invoke([new HumanMessage(prompt)]);
+        const llm = getReviewLLM(apiKey);
+        const response = await llm.invoke([new HumanMessage(prompt)]);
         res.json({ answer: response.content });
     } catch (error: any) {
         console.error("[CHATBOT] Error processing chat query:", error);
@@ -99,7 +105,13 @@ app.post("/webhook/github", async (req: express.Request, res: express.Response) 
         const baseBranch: string = req.body.pull_request.base.ref;
         const prTitle: string = req.body.pull_request.title;
 
-
+        console.log(`[ORCHESTRATOR] Looking up API key for repository owner: ${owner}`);
+        const geminiApiKey = await getApiKeyForUser(owner);
+        if (!geminiApiKey) {
+            console.error(`[CRITICAL] No API Key found for user ${owner}. Aborting review.`);
+            res.status(403).send("No API key configured for this user. Please log in to PR Guardian SaaS and provide your API Key.");
+            return;
+        }
         let prDiff: string;
         try {
             prDiff = await getPRDiff(owner, repo, pull_number);
@@ -121,6 +133,7 @@ diff --git a/demo.ts b/demo.ts
         }
 
         const state = {
+            geminiApiKey,
             owner,
             repo,
             pullNumber: pull_number,

@@ -1,6 +1,6 @@
 import { HumanMessage } from "@langchain/core/messages";
 import { ReviewState } from "./manager";
-import { premiumLLM } from "../ai/provider";
+import { getReviewLLM, getPremiumLLM } from "../ai/provider";
 import { invokeWithRetry } from "../ai/utils";
 
 export const fixerAuditorNode = async (state: ReviewState): Promise<Partial<ReviewState>> => {
@@ -30,7 +30,7 @@ INSTRUCTIONS:
 5. Do not include any text outside the tags.`;
 
   try {
-    const response = await invokeWithRetry(premiumLLM, [new HumanMessage(prompt)]);
+    const response = await invokeWithRetry(getPremiumLLM(state.geminiApiKey), [new HumanMessage(prompt)]);
     const content = response.content?.toString() || "";
 
     if (!content) {
