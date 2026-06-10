@@ -268,6 +268,7 @@ diff --git a/demo.ts b/demo.ts
         });
 
         console.log(`\n${'='.repeat(50)}`);
+        io.emit("audit_complete");
         console.log(`✅ [ORCHESTRATOR] AUDIT COMPLETE: PR #${pull_number}`);
         console.log(`🎉 Review posted successfully!`);
         console.log(`${'='.repeat(50)}\n`);

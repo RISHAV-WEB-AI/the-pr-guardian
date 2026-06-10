@@ -92,7 +92,14 @@ export default function App() {
       setLiveNodes(p => [...p, { ...data, id: Date.now() }].slice(-100)); // Keep last 100 lines
     });
 
-    return () => { socket.off('raw_log'); };
+    socket.on('audit_complete', () => {
+      fetchData();
+    });
+
+    return () => { 
+      socket.off('raw_log'); 
+      socket.off('audit_complete');
+    };
   }, [session]);
 
   if (loading) {
