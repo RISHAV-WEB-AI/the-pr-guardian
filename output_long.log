@@ -1,0 +1,31 @@
+﻿=========================================
+≡ƒñû LOCAL DEMO: COMPREHENSIVE AI REVIEWER
+=========================================
+[ORCHESTRATOR] Sending huge complex snippet to the AI Auditors...
+Please wait, the AI is thinking deeply about improvements and errors...
+
+-----------------------------------------
+[MANAGER] Received PR length: 2103 chars
+[MANAGER] LLM Invocation failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent: [404 Not Found] models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+[MANAGER] Note: Missing or Invalid API Key, falling back to default route.
+-----------------------------------------
+[SECURITY] Querying Gemini for OWASP vulnerabilities...
+[Terminal Agent] Sandboxing: Generating script for Docker execution -> mock_sqli_poc.js
+[PERFORMANCE] Querying Gemini for Big-O Algorithmic Runtime...
+[Terminal Agent] Sandboxing: Generating script for Docker execution -> mock_big_o_tester.js
+[LOGIC] Cross-referencing diff with PR Description and Stitch MCP for UI Validation...
+[INTEGRATION] Context checking to avoid cross-file breaks via LLM...
+
+=========================================
+Γ£à COMPREHENSIVE REVIEW COMPLETE
+=========================================
+
+[36m--- [AI Finding / Suggestion 1] ---[0m
+### [High] SQL Injection detected
+**Verification:** Γ£à Script saved to sandbox volume: D:\project-ai-code-reviewer\docker_tests\mock_sqli_poc.js. Ready for CI/CD container pickup.
+[36m--------------------------------[0m
+
+[36m--- [AI Finding / Suggestion 2] ---[0m
+### [Medium] Superlinear Time Complexity (O(n^2))
+**Verification:** Γ£à Script saved to sandbox volume: D:\project-ai-code-reviewer\docker_tests\mock_big_o_tester.js. Ready for CI/CD container pickup.
+[36m--------------------------------[0m

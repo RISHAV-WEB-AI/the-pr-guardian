@@ -1,0 +1,32 @@
+﻿=========================================
+≡ƒñû LOCAL DEMO: AI CODE REVIEWER
+=========================================
+[ORCHESTRATOR] Graph configured. Sending code snippet into pipeline...
+
+-----------------------------------------
+[MANAGER] Received PR length: 667 chars
+[MANAGER] LLM Invocation failed: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent: [404 Not Found] models/gemini-1.5-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+[MANAGER] Note: Missing or Invalid API Key, falling back to default route.
+-----------------------------------------
+[SECURITY] Querying Gemini for OWASP vulnerabilities...
+[Terminal Agent] Sandboxing: Generating script for Docker execution -> mock_sqli_poc.js
+[PERFORMANCE] Querying Gemini for Big-O Algorithmic Runtime...
+[Terminal Agent] Sandboxing: Generating script for Docker execution -> mock_big_o_tester.js
+[LOGIC] Cross-referencing diff with PR Description and Stitch MCP for UI Validation...
+[INTEGRATION] Context checking to avoid cross-file breaks via LLM...
+
+=========================================
+Γ£à REVIEW COMPLETE
+=========================================
+Generating Final Report:
+
+--- [Issue 1] ---
+### [High] SQL Injection detected
+**Verification:** Γ£à Script saved to sandbox volume: D:\project-ai-code-reviewer\docker_tests\mock_sqli_poc.js. Ready for CI/CD container pickup.
+------------------
+
+--- [Issue 2] ---
+### [Medium] Superlinear Time Complexity (O(n^2))
+**Verification:** Γ£à Script saved to sandbox volume: D:\project-ai-code-reviewer\docker_tests\mock_big_o_tester.js. Ready for CI/CD container pickup.
+------------------
+

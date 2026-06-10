@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  ai-reviewer-sandbox:
+    build: .
+    container_name: faang_reviewer_sandbox
+    # Mount the host tests directory into the sandbox so it can access the dynamically generated LLM exploits
+    volumes:
+      - ./docker_tests:/app/docker_tests
+    # Limit resources to prevent infinite loops (like O(n) bugs) from crashing the CI host
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
