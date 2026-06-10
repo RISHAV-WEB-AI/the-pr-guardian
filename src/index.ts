@@ -63,8 +63,25 @@ app.post("/api/chat", async (req, res) => {
 // Socket.io Connection Handler
 io.on("connection", (socket) => {
     console.log(`[DASHBOARD] Client connected: ${socket.id}`);
-    socket.emit("status", { message: "Connected to Antigravity AI Orchestrator" });
 });
+
+// Override console.log to stream to dashboard
+const originalLog = console.log;
+console.log = function (...args) {
+    const msg = args.join(" ");
+    originalLog.apply(console, args);
+    // Don't emit socket/express internal logs
+    if (!msg.includes("[DASHBOARD]") && !msg.includes("[INBOUND]")) {
+        io.emit("raw_log", { message: msg, type: "info" });
+    }
+};
+
+const originalError = console.error;
+console.error = function (...args) {
+    const msg = args.join(" ");
+    originalError.apply(console, args);
+    io.emit("raw_log", { message: msg, type: "error" });
+};
 
 // Global request logger — must be BEFORE routes so it doesn't shadow 404s
 app.use((req, _res, next) => {

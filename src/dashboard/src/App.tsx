@@ -88,11 +88,11 @@ export default function App() {
     };
     fetchData();
 
-    socket.on('node_results', (data) => {
-      setLiveNodes(p => [{ ...data, id: Date.now() }, ...p].slice(0, 15));
+    socket.on('raw_log', (data) => {
+      setLiveNodes(p => [...p, { ...data, id: Date.now() }].slice(-100)); // Keep last 100 lines
     });
 
-    return () => { socket.off('node_results'); };
+    return () => { socket.off('raw_log'); };
   }, [session]);
 
   if (loading) {
@@ -230,16 +230,13 @@ export default function App() {
             <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>Live Telemetry</h2>
             <div style={{ padding: '4px 8px', background: T.emerald + '20', color: T.emerald, borderRadius: 6, fontSize: 10, fontWeight: 800 }}>LIVE</div>
           </div>
-          <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <AnimatePresence>
-              {liveNodes.map((log) => (
-                <motion.div key={log.id} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}
-                  style={{ background: T.surfMid, padding: 12, borderRadius: 12, fontSize: 12, borderLeft: `3px solid ${T.primaryCont}`, position: 'relative' }}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: T.primaryCont, marginBottom: 4 }}>{log.node.toUpperCase()} NODE</div>
-                  <div style={{ color: T.onSurfaceVar, lineHeight: 1.4 }}>{log.message || "Phase execution synchronized."}</div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
+          <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4, fontFamily: 'monospace', padding: 8, background: '#000', borderRadius: 12 }}>
+            {liveNodes.length === 0 && <div style={{ color: T.outlineVar, fontSize: 12, padding: 8 }}>Awaiting PR Hook...</div>}
+            {liveNodes.map((log) => (
+              <div key={log.id} style={{ fontSize: 11, color: log.type === 'error' ? T.rose : T.emerald, wordBreak: 'break-all', lineHeight: 1.4 }}>
+                {log.message}
+              </div>
+            ))}
           </div>
         </motion.div>
       </div>
