@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npx tsx src/index.ts",
-    "build": "tsc",
+    "build": "tsc && npm --prefix src/dashboard install && npm --prefix src/dashboard run build",
     "test": "vitest run"
   },
   "keywords": [],
