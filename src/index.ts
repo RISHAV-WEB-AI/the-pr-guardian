@@ -91,14 +91,15 @@ app.post("/webhook/github", async (req: express.Request, res: express.Response) 
 
     // FIX (Bug 1): All metadata fields are now extracted BEFORE building state,
     // so owner/repo/pullNumber/baseBranch are never undefined inside the graph.
-    const { login: owner } = req.body.repository.owner;
-    const { name: repo } = req.body.repository;
-    const pull_number: number = req.body.pull_request.number;
-    const prDescription: string = req.body.pull_request.body || "No PR Description";
-    const baseBranch: string = req.body.pull_request.base.ref;
-    const prTitle: string = req.body.pull_request.title;
-
     try {
+        const { login: owner } = req.body.repository.owner;
+        const { name: repo } = req.body.repository;
+        const pull_number: number = req.body.pull_request.number;
+        const prDescription: string = req.body.pull_request.body || "No PR Description";
+        const baseBranch: string = req.body.pull_request.base.ref;
+        const prTitle: string = req.body.pull_request.title;
+
+
         let prDiff: string;
         try {
             prDiff = await getPRDiff(owner, repo, pull_number);
@@ -216,7 +217,6 @@ diff --git a/demo.ts b/demo.ts
             styleFindings      * 5;
         const healthScore = Math.max(0, 100 - totalPenalty);
 
-        // FIX (Bug 7): saveAuditRecord was built but never called. Now it is.
         await saveAuditRecord({
             id: `pr_${pull_number}_${Date.now()}`,
             owner,
@@ -243,8 +243,12 @@ diff --git a/demo.ts b/demo.ts
         console.log(`${'='.repeat(50)}\n`);
 
     } catch (e: any) {
-
-        console.error(`[CRITICAL] Unhandled error processing PR #${pull_number}: ${e.message}`, e.stack ?? "");
+        io.emit("node_results", {
+            node: "SYSTEM_ERROR",
+            message: `CRITICAL ERROR: ${e.message}. Please check your Render Environment Variables or GitHub Webhook settings.`,
+            timestamp: new Date().toISOString()
+        });
+        console.error(`[CRITICAL] Unhandled error processing PR: ${e.message}`, e.stack ?? "");
     }
 });
 
