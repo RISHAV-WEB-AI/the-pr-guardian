@@ -91,6 +91,8 @@ export default function App() {
             githubUsername = session?.user?.email?.split('@')[0] || 'unknown';
         }
         
+        setGithubUsernameState(githubUsername);
+        
         if (githubUsername) {
            socket.emit("join", githubUsername);
         }
@@ -154,7 +156,15 @@ export default function App() {
           </div>
         </div>
         
-        <div style={{ display: 'flex', gap: 12 }}>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontSize: 13, color: T.outlineVar, fontFamily: 'monospace', background: T.surfLow, padding: '6px 12px', borderRadius: 8, border: `1px solid ${T.outlineVar}30` }}>
+              {githubUsernameState || 'Loading...'}
+            </span>
+            <div style={{ width: 36, height: 36, borderRadius: '50%', background: `linear-gradient(135deg, ${T.primaryCont}, #6366f1)`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, boxShadow: `0 4px 12px ${T.primaryCont}40` }}>
+              {session?.user?.user_metadata?.full_name?.charAt(0) || session?.user?.email?.charAt(0) || 'U'}
+            </div>
+          </div>
           <button onClick={() => setShowSettings(true)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', background: T.surfHigh, border: `1px solid ${T.outlineVar}30`, borderRadius: 12, color: T.onSurface, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>
             <Key size={16} color={T.emerald} /> API Settings
           </button>
