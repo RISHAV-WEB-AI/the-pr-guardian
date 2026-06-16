@@ -5,6 +5,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import path from "path";
 import "dotenv/config";
+import { AsyncLocalStorage } from "async_hooks";
 
 import { getPRDiff, postReviewFeedback } from "./server/github";
 import { buildGraph } from "./orchestrator/graph";
@@ -20,6 +21,8 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: { origin: "*" }
 });
+
+export const als = new AsyncLocalStorage<string>();
 
 const PORT = process.env.PORT || 3000;
 
@@ -64,6 +67,10 @@ app.post("/api/chat", async (req, res) => {
 // Socket.io Connection Handler
 io.on("connection", (socket) => {
     console.log(`[DASHBOARD] Client connected: ${socket.id}`);
+    socket.on("join", (owner) => {
+        socket.join(owner.toLowerCase());
+        console.log(`[DASHBOARD] Socket ${socket.id} joined room ${owner.toLowerCase()}`);
+    });
 });
 
 // Override console.log to stream to dashboard
@@ -73,7 +80,10 @@ console.log = function (...args) {
     originalLog.apply(console, args);
     // Don't emit socket/express internal logs
     if (!msg.includes("[DASHBOARD]") && !msg.includes("[INBOUND]")) {
-        io.emit("raw_log", { message: msg, type: "info" });
+        const owner = als.getStore();
+        if (owner) {
+            io.to(owner.toLowerCase()).emit("raw_log", { message: msg, type: "info" });
+        }
     }
 };
 
@@ -81,7 +91,10 @@ const originalError = console.error;
 console.error = function (...args) {
     const msg = args.join(" ");
     originalError.apply(console, args);
-    io.emit("raw_log", { message: msg, type: "error" });
+    const owner = als.getStore();
+    if (owner) {
+        io.to(owner.toLowerCase()).emit("raw_log", { message: msg, type: "error" });
+    }
 };
 
 // Global request logger — must be BEFORE routes so it doesn't shadow 404s
@@ -130,12 +143,15 @@ app.post("/webhook/github", async (req: express.Request, res: express.Response) 
             res.status(403).send("No API key configured for this user. Please log in to PR Guardian SaaS and provide your API Key.");
             return;
         }
-        let prDiff: string;
-        try {
-            prDiff = await getPRDiff(owner, repo, pull_number);
-        } catch (e) {
-            console.warn(`[GITHUB] Could not fetch real diff for ${owner}/${repo} #${pull_number}. Using fallback diff for simulation.`);
-            prDiff = `
+
+        // Run the entire PR review process within the AsyncLocalStorage context
+        await als.run(owner, async () => {
+            let prDiff: string;
+            try {
+                prDiff = await getPRDiff(owner, repo, pull_number);
+            } catch (e) {
+                console.warn(`[GITHUB] Could not fetch real diff for ${owner}/${repo} #${pull_number}. Using fallback diff for simulation.`);
+                prDiff = `
 diff --git a/demo.ts b/demo.ts
 --- a/demo.ts
 +++ b/demo.ts
@@ -204,7 +220,7 @@ diff --git a/demo.ts b/demo.ts
                 console.log(`[AGENT] ✅ Phase completed with no new findings.`);
             }
 
-            io.emit("node_results", {
+            io.to(owner.toLowerCase()).emit("node_results", {
                 node: nodeName,
                 results: nodeResult,
                 timestamp: new Date().toISOString(),
@@ -269,17 +285,23 @@ diff --git a/demo.ts b/demo.ts
         });
 
         console.log(`\n${'='.repeat(50)}`);
-        io.emit("audit_complete");
+        io.to(owner.toLowerCase()).emit("audit_complete");
         console.log(`✅ [ORCHESTRATOR] AUDIT COMPLETE: PR #${pull_number}`);
         console.log(`🎉 Review posted successfully!`);
         console.log(`${'='.repeat(50)}\n`);
+        
+        }); // End als.run
 
     } catch (e: any) {
-        io.emit("node_results", {
-            node: "SYSTEM_ERROR",
-            message: `CRITICAL ERROR: ${e.message}. Please check your Render Environment Variables or GitHub Webhook settings.`,
-            timestamp: new Date().toISOString()
-        });
+        // We might not have owner context here if it fails before extraction, so just log it globally or fallback
+        const ownerName = req.body?.repository?.owner?.login;
+        if (ownerName) {
+            io.to(ownerName.toLowerCase()).emit("node_results", {
+                node: "SYSTEM_ERROR",
+                message: `CRITICAL ERROR: ${e.message}. Please check your Render Environment Variables or GitHub Webhook settings.`,
+                timestamp: new Date().toISOString()
+            });
+        }
         console.error(`[CRITICAL] Unhandled error processing PR: ${e.message}`, e.stack ?? "");
     }
 });

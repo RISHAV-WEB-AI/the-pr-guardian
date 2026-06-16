@@ -83,6 +83,10 @@ export default function App() {
     const fetchData = async () => {
       try {
         const githubUsername = session?.user?.user_metadata?.user_name || session?.user?.user_metadata?.preferred_username;
+        if (githubUsername) {
+           socket.emit("join", githubUsername);
+        }
+        setLiveNodes([]); // Clear previous live nodes for new sessions
         const res = await axios.get(`${API_URL}/api/history${githubUsername ? `?owner=${githubUsername}` : ''}`);
         setHistory(res.data.audits || []);
         setStats(res.data.stats || { totalAudits: 0, totalHeals: 0, averageHealth: 0 });
