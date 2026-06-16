@@ -61,6 +61,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [selectedPR, setSelectedPR] = useState<AuditRecord | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [githubUsernameState, setGithubUsernameState] = useState<string>('');
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
