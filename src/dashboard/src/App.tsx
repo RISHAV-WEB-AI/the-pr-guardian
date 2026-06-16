@@ -38,7 +38,8 @@ const T = {
   warn:           '#f59e0b'
 };
 
-const socket = io();
+const API_URL = import.meta.env.VITE_API_URL || '';
+const socket = io(API_URL || undefined);
 
 interface AuditRecord { 
   id: string; 
@@ -82,7 +83,7 @@ export default function App() {
     const fetchData = async () => {
       try {
         const githubUsername = session?.user?.user_metadata?.user_name || session?.user?.user_metadata?.preferred_username;
-        const res = await axios.get(`/api/history${githubUsername ? `?owner=${githubUsername}` : ''}`);
+        const res = await axios.get(`${API_URL}/api/history${githubUsername ? `?owner=${githubUsername}` : ''}`);
         setHistory(res.data.audits || []);
         setStats(res.data.stats || { totalAudits: 0, totalHeals: 0, averageHealth: 0 });
       } catch (e) { console.error("Fetch failed", e); }
@@ -999,7 +1000,7 @@ function Chatbot({ session }: any) {
     setLoading(true);
     try {
       const githubUsername = session.user.user_metadata?.user_name || session.user.user_metadata?.preferred_username;
-      const res = await axios.post('/api/chat', { query, githubUsername });
+      const res = await axios.post(`${API_URL}/api/chat`, { query, githubUsername });
       setChat(prev => [...prev, { role: 'bot', text: res.data.answer }]);
     } catch (e) {
       setChat(prev => [...prev, { role: 'bot', text: 'Error: Failed to fetch response from core.' }]);
