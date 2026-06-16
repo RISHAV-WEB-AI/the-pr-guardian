@@ -135,6 +135,7 @@ app.post("/webhook/github", async (req: express.Request, res: express.Response) 
         const prDescription: string = req.body.pull_request.body || "No PR Description";
         const baseBranch: string = req.body.pull_request.base.ref;
         const prTitle: string = req.body.pull_request.title;
+        const installationId: number | undefined = req.body.installation?.id;
 
         console.log(`[ORCHESTRATOR] Looking up API key for repository owner: ${owner}`);
         const geminiApiKey = await getApiKeyForUser(owner);
@@ -148,7 +149,7 @@ app.post("/webhook/github", async (req: express.Request, res: express.Response) 
         await als.run(owner, async () => {
             let prDiff: string;
             try {
-                prDiff = await getPRDiff(owner, repo, pull_number);
+                prDiff = await getPRDiff(owner, repo, pull_number, installationId);
             } catch (e) {
                 console.warn(`[GITHUB] Could not fetch real diff for ${owner}/${repo} #${pull_number}. Using fallback diff for simulation.`);
                 prDiff = `
@@ -243,7 +244,8 @@ diff --git a/demo.ts b/demo.ts
             repo,
             pull_number,
             finalResult.findings,
-            finalResult.inlineComments
+            finalResult.inlineComments,
+            installationId
         );
 
         // FIX (Bug 9): Exclude "Auditor Error" findings from health score / status.

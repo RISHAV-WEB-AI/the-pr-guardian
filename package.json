@@ -19,6 +19,7 @@
     "@langchain/google-genai": "^2.1.26",
     "@langchain/langgraph": "^1.2.6",
     "@langchain/textsplitters": "^1.0.1",
+    "@octokit/auth-app": "^8.2.0",
     "@octokit/rest": "^22.0.1",
     "@supabase/supabase-js": "^2.108.1",
     "body-parser": "^2.2.2",

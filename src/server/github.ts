@@ -1,13 +1,28 @@
 import { Octokit } from "@octokit/rest";
+import { createAppAuth } from "@octokit/auth-app";
 import "dotenv/config";
 
-const github = new Octokit({
-  auth: process.env.GITHUB_TOKEN,
-});
+function getOctokit(installationId?: number) {
+  if (process.env.GITHUB_APP_ID && process.env.GITHUB_PRIVATE_KEY && installationId) {
+    const privateKey = process.env.GITHUB_PRIVATE_KEY.replace(/\\n/g, '\n');
+    return new Octokit({
+      authStrategy: createAppAuth,
+      auth: {
+        appId: process.env.GITHUB_APP_ID,
+        privateKey,
+        installationId,
+      },
+    });
+  }
+  return new Octokit({
+    auth: process.env.GITHUB_TOKEN,
+  });
+}
 
-export async function getPRDiff(owner: string, repo: string, pull_number: number): Promise<string> {
+export async function getPRDiff(owner: string, repo: string, pull_number: number, installationId?: number): Promise<string> {
   try {
     console.log(`[GITHUB] Fetching diff for ${owner}/${repo} PR #${pull_number}...`);
+    const github = getOctokit(installationId);
     const { data } = await github.pulls.get({
       owner,
       repo,
@@ -26,9 +41,11 @@ export async function postReviewFeedback(
   repo: string,
   pull_number: number,
   findings: string[],
-  inlineComments: any[] = []
+  inlineComments: any[] = [],
+  installationId?: number
 ) {
   try {
+    const github = getOctokit(installationId);
     const { data: pullRequest } = await github.pulls.get({ owner, repo, pull_number });
     const commitId = pullRequest.head.sha;
 
