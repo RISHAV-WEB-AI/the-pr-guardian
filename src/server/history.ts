@@ -49,8 +49,8 @@ export async function getHistory(owner?: string) {
     const db = await JSONFilePreset<HistoryDB>('.history.json', defaultData);
     await db.read();
     
-    if (!owner) {
-        return db.data;
+    if (!owner || owner === "undefined" || owner === "null") {
+        return { audits: [], stats: { totalAudits: 0, totalHeals: 0, averageHealth: 100 } };
     }
 
     const filteredAudits = db.data.audits.filter(a => a.owner.toLowerCase() === owner.toLowerCase());
