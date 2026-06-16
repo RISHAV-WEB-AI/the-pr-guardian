@@ -34,7 +34,8 @@ app.get(/\/dashboard(\/.*)?$/, (req, res) => {
 
 // Dashboard History API
 app.get("/api/history", async (req, res) => {
-    const history = await getHistory();
+    const owner = req.query.owner as string | undefined;
+    const history = await getHistory(owner);
     res.json(history);
 });
 

@@ -45,8 +45,28 @@ export async function saveAuditRecord(record: PRAuditRecord) {
     console.log(`[HISTORY] Saved audit record for PR #${record.pullNumber}. New Avg Health: ${db.data.stats.averageHealth}%`);
 }
 
-export async function getHistory() {
+export async function getHistory(owner?: string) {
     const db = await JSONFilePreset<HistoryDB>('.history.json', defaultData);
     await db.read();
-    return db.data;
+    
+    if (!owner) {
+        return db.data;
+    }
+
+    const filteredAudits = db.data.audits.filter(a => a.owner.toLowerCase() === owner.toLowerCase());
+    
+    const total = filteredAudits.length;
+    const healed = filteredAudits.filter(a => a.status === "Healed").length;
+    const avgHealth = total > 0 
+        ? filteredAudits.reduce((acc, a) => acc + a.healthScore, 0) / total 
+        : 100;
+
+    return {
+        audits: filteredAudits,
+        stats: {
+            totalAudits: total,
+            totalHeals: healed,
+            averageHealth: Math.round(avgHealth)
+        }
+    };
 }

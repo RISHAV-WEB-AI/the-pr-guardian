@@ -81,7 +81,8 @@ export default function App() {
 
     const fetchData = async () => {
       try {
-        const res = await axios.get('/api/history');
+        const githubUsername = session?.user?.user_metadata?.user_name || session?.user?.user_metadata?.preferred_username;
+        const res = await axios.get(`/api/history${githubUsername ? `?owner=${githubUsername}` : ''}`);
         setHistory(res.data.audits || []);
         setStats(res.data.stats || { totalAudits: 0, totalHeals: 0, averageHealth: 0 });
       } catch (e) { console.error("Fetch failed", e); }
@@ -760,7 +761,10 @@ function SignUpModal({ isOpen, onClose, onSwitchToLogin }: any) {
     // For now, we proceed to GitHub OAuth which handles creation automatically.
     await supabase.auth.signInWithOAuth({
       provider: 'github',
-      options: { redirectTo: window.location.origin }
+      options: { 
+        redirectTo: window.location.origin,
+        queryParams: { prompt: 'consent' }
+      }
     });
   };
 
@@ -802,7 +806,10 @@ function LoginModal({ isOpen, onClose, onSwitchToSignUp }: any) {
     // we can simulate the intent check here or handle it post-redirect.
     await supabase.auth.signInWithOAuth({
       provider: 'github',
-      options: { redirectTo: window.location.origin }
+      options: { 
+        redirectTo: window.location.origin,
+        queryParams: { prompt: 'consent' }
+      }
     });
   };
 
