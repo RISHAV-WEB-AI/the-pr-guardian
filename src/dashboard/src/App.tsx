@@ -82,7 +82,15 @@ export default function App() {
 
     const fetchData = async () => {
       try {
-        const githubUsername = session?.user?.user_metadata?.user_name || session?.user?.user_metadata?.preferred_username;
+        let githubUsername = session?.user?.user_metadata?.user_name || session?.user?.user_metadata?.preferred_username;
+        if (!githubUsername && session?.user?.identities) {
+            const githubIdentity = session.user.identities.find((i: any) => i.provider === 'github');
+            githubUsername = githubIdentity?.identity_data?.user_name || githubIdentity?.identity_data?.preferred_username;
+        }
+        if (!githubUsername) {
+            githubUsername = session?.user?.email?.split('@')[0] || 'unknown';
+        }
+        
         if (githubUsername) {
            socket.emit("join", githubUsername);
         }
@@ -1003,7 +1011,14 @@ function Chatbot({ session }: any) {
     setQuery('');
     setLoading(true);
     try {
-      const githubUsername = session.user.user_metadata?.user_name || session.user.user_metadata?.preferred_username;
+      let githubUsername = session?.user?.user_metadata?.user_name || session?.user?.user_metadata?.preferred_username;
+      if (!githubUsername && session?.user?.identities) {
+          const githubIdentity = session.user.identities.find((i: any) => i.provider === 'github');
+          githubUsername = githubIdentity?.identity_data?.user_name || githubIdentity?.identity_data?.preferred_username;
+      }
+      if (!githubUsername) {
+          githubUsername = session?.user?.email?.split('@')[0] || 'unknown';
+      }
       const res = await axios.post(`${API_URL}/api/chat`, { query, githubUsername });
       setChat(prev => [...prev, { role: 'bot', text: res.data.answer }]);
     } catch (e) {
