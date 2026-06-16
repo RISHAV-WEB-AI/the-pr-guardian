@@ -975,15 +975,13 @@ function SetupGuideModal({ isOpen, onClose }: any) {
           <div style={{ background: T.surfMid, padding: 20, borderRadius: 16, border: `1px solid ${T.outlineVar}30` }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
               <div style={{ width: 24, height: 24, borderRadius: '50%', background: T.emerald, color: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: 12 }}>2</div>
-              <h4 style={{ margin: 0, fontSize: 16, color: T.onSurface }}>Add Webhook to GitHub</h4>
+              <h4 style={{ margin: 0, fontSize: 16, color: T.onSurface }}>Install the GitHub App</h4>
             </div>
             <p style={{ margin: '0 0 12px 36px', fontSize: 14, color: T.onSurfaceVar, lineHeight: 1.5 }}>
-              Go to your GitHub repository Settings &gt; Webhooks &gt; Add Webhook. Configure it exactly like this:
+              Instead of manually configuring webhooks, simply install the PR Guardian GitHub App on your repositories. This ensures the bot posts comments officially!
             </p>
-            <div style={{ margin: '0 0 0 36px', background: T.surfHighest, padding: 16, borderRadius: 12, fontFamily: 'monospace', fontSize: 13, border: `1px solid ${T.outlineVar}50` }}>
-              <div style={{ marginBottom: 8 }}><span style={{ color: T.outline }}>Payload URL:</span> <span style={{ color: T.tint, userSelect: 'all' }}>http://54.224.83.47:3000/webhook/github</span></div>
-              <div style={{ marginBottom: 8 }}><span style={{ color: T.outline }}>Content type:</span> <span style={{ color: T.tint }}>application/json</span></div>
-              <div><span style={{ color: T.outline }}>Which events?</span> <span style={{ color: T.tint }}>Let me select individual events → Pull requests</span></div>
+            <div style={{ margin: '0 0 0 36px', display: 'flex', gap: 10 }}>
+              <a href="https://github.com/settings/apps" target="_blank" rel="noreferrer" style={{ padding: '8px 16px', background: T.primary, color: T.bg, borderRadius: 8, textDecoration: 'none', fontSize: 13, fontWeight: 600 }}>Go to GitHub Apps</a>
             </div>
           </div>
 
