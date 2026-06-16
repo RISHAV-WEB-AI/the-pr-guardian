@@ -7,7 +7,7 @@ import {
   ShieldCheck, Zap, Activity, History, 
   Terminal, Cpu, ChevronRight,
   CheckCircle2, X, MessageSquare, Key, LogOut,
-  ChevronDown, GitBranch, Lock
+  ChevronDown, GitBranch, Lock, BookOpen
 } from 'lucide-react';
 import { 
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
@@ -61,6 +61,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [selectedPR, setSelectedPR] = useState<AuditRecord | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [showSetupGuide, setShowSetupGuide] = useState(false);
   const [githubUsernameState, setGithubUsernameState] = useState<string>('');
 
   useEffect(() => {
@@ -166,6 +167,9 @@ export default function App() {
               {session?.user?.user_metadata?.full_name?.charAt(0) || session?.user?.email?.charAt(0) || 'U'}
             </div>
           </div>
+          <button onClick={() => setShowSetupGuide(true)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', background: T.surfHigh, border: `1px solid ${T.outlineVar}30`, borderRadius: 12, color: T.onSurface, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>
+            <BookOpen size={16} color={T.primary} /> Setup Guide
+          </button>
           <button onClick={() => setShowSettings(true)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', background: T.surfHigh, border: `1px solid ${T.outlineVar}30`, borderRadius: 12, color: T.onSurface, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>
             <Key size={16} color={T.emerald} /> API Settings
           </button>
@@ -277,6 +281,7 @@ export default function App() {
       {/* OVERLAYS */}
       <LogModal pr={selectedPR} onClose={() => setSelectedPR(null)} />
       <SettingsModal session={session} isOpen={showSettings} onClose={() => setShowSettings(false)} />
+      <SetupGuideModal isOpen={showSetupGuide} onClose={() => setShowSetupGuide(false)} />
       <Chatbot session={session} />
 
       <style>{`
@@ -412,9 +417,9 @@ function LandingPage() {
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 32 }}>
           {[
-            { num: 1, icon: '🐙', title: 'Connect your GitHub account', desc: 'Sign up and connect your GitHub account to get PR Guardian up and running in minutes.' },
-            { num: 2, icon: '🔑', title: 'Add your Gemini API Key', desc: 'Paste in your Gemini API key and we will immediately start reviewing your pull requests.' },
-            { num: 3, icon: '✨', title: 'Auto-review and heal pull requests', desc: 'PR Guardian will automatically analyze bugs, flagged issues and then fix them in the pull.' }
+            { num: 1, icon: '🔑', title: 'Add your Gemini API Key', desc: 'Sign up and paste your Gemini API key in the dashboard so PR Guardian can analyze your code.' },
+            { num: 2, icon: '🔗', title: 'Add GitHub Webhook', desc: 'Point a GitHub Webhook from your repository to our server endpoint to enable event listening.' },
+            { num: 3, icon: '✨', title: 'Auto-review Pull Requests', desc: 'PR Guardian automatically analyzes bugs, reviews changes, and secures your code on every PR.' }
           ].map((feat, i) => (
             <div key={i} style={{ background: '#ffffff', padding: 40, borderRadius: 16, border: '1px solid #e4e4e7', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32 }}>
@@ -939,6 +944,65 @@ function StatusBadge({ status }: { status: string }) {
     <span style={{ padding: '3px 10px', borderRadius: 6, fontSize: 10, fontWeight: 800, color, background: color + '15', border: `1px solid ${color}25` }}>
       {status.toUpperCase()}
     </span>
+  );
+}
+
+function SetupGuideModal({ isOpen, onClose }: any) {
+  if (!isOpen) return null;
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }} onClick={onClose} />
+      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} style={{ position: 'relative', width: 600, background: T.surfHigh, borderRadius: 24, border: `1px solid ${T.outlineVar}`, padding: 32, boxShadow: '0 24px 64px -12px rgba(0,0,0,0.8)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+          <div>
+            <h3 style={{ fontSize: 24, fontWeight: 600, color: T.onSurface, margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: 10 }}><BookOpen size={24} color={T.primary}/> Setup Guide</h3>
+            <p style={{ color: T.outline, fontSize: 14, margin: 0 }}>Follow these quick steps to get PR Guardian analyzing your code.</p>
+          </div>
+          <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: T.outline, cursor: 'pointer', padding: 4 }}><X size={20}/></button>
+        </div>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div style={{ background: T.surfMid, padding: 20, borderRadius: 16, border: `1px solid ${T.outlineVar}30` }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+              <div style={{ width: 24, height: 24, borderRadius: '50%', background: T.emerald, color: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: 12 }}>1</div>
+              <h4 style={{ margin: 0, fontSize: 16, color: T.onSurface }}>Configure API Key</h4>
+            </div>
+            <p style={{ margin: '0 0 0 36px', fontSize: 14, color: T.onSurfaceVar, lineHeight: 1.5 }}>
+              Click the <strong>API Settings</strong> button next to this guide and paste your Gemini API Key. This key allows the AI engine to review your code without a subscription.
+            </p>
+          </div>
+
+          <div style={{ background: T.surfMid, padding: 20, borderRadius: 16, border: `1px solid ${T.outlineVar}30` }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+              <div style={{ width: 24, height: 24, borderRadius: '50%', background: T.emerald, color: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: 12 }}>2</div>
+              <h4 style={{ margin: 0, fontSize: 16, color: T.onSurface }}>Add Webhook to GitHub</h4>
+            </div>
+            <p style={{ margin: '0 0 12px 36px', fontSize: 14, color: T.onSurfaceVar, lineHeight: 1.5 }}>
+              Go to your GitHub repository Settings &gt; Webhooks &gt; Add Webhook. Configure it exactly like this:
+            </p>
+            <div style={{ margin: '0 0 0 36px', background: T.surfHighest, padding: 16, borderRadius: 12, fontFamily: 'monospace', fontSize: 13, border: `1px solid ${T.outlineVar}50` }}>
+              <div style={{ marginBottom: 8 }}><span style={{ color: T.outline }}>Payload URL:</span> <span style={{ color: T.tint, userSelect: 'all' }}>http://54.224.83.47:3000/webhook/github</span></div>
+              <div style={{ marginBottom: 8 }}><span style={{ color: T.outline }}>Content type:</span> <span style={{ color: T.tint }}>application/json</span></div>
+              <div><span style={{ color: T.outline }}>Which events?</span> <span style={{ color: T.tint }}>Let me select individual events → Pull requests</span></div>
+            </div>
+          </div>
+
+          <div style={{ background: T.surfMid, padding: 20, borderRadius: 16, border: `1px solid ${T.outlineVar}30` }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+              <div style={{ width: 24, height: 24, borderRadius: '50%', background: T.emerald, color: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: 12 }}>3</div>
+              <h4 style={{ margin: 0, fontSize: 16, color: T.onSurface }}>Open a Pull Request</h4>
+            </div>
+            <p style={{ margin: '0 0 0 36px', fontSize: 14, color: T.onSurfaceVar, lineHeight: 1.5 }}>
+              Open a new Pull Request on your repository. PR Guardian will automatically analyze the code and post its review results!
+            </p>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 24 }}>
+          <button onClick={onClose} style={{ padding: '10px 20px', background: T.success, color: T.bg, border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Got it</button>
+        </div>
+      </motion.div>
+    </div>
   );
 }
 
