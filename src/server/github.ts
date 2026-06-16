@@ -3,8 +3,10 @@ import { createAppAuth } from "@octokit/auth-app";
 import "dotenv/config";
 
 function getOctokit(installationId?: number) {
+  console.log(`[GITHUB-AUTH] Auth Check: APP_ID=${!!process.env.GITHUB_APP_ID}, PRIVATE_KEY=${!!process.env.GITHUB_PRIVATE_KEY}, InstallationID=${installationId}`);
   if (process.env.GITHUB_APP_ID && process.env.GITHUB_PRIVATE_KEY && installationId) {
     const privateKey = process.env.GITHUB_PRIVATE_KEY.replace(/\\n/g, '\n');
+    console.log(`[GITHUB-AUTH] Authenticating as GitHub App Installation ${installationId}`);
     return new Octokit({
       authStrategy: createAppAuth,
       auth: {
@@ -14,6 +16,7 @@ function getOctokit(installationId?: number) {
       },
     });
   }
+  console.log(`[GITHUB-AUTH] Falling back to GITHUB_TOKEN. Missing requirements.`);
   return new Octokit({
     auth: process.env.GITHUB_TOKEN,
   });
