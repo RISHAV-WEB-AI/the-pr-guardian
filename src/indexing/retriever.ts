@@ -6,15 +6,15 @@ import "dotenv/config";
 // directly (it was embedded at index time). The unused import caused a compile
 // warning and implied a misunderstanding of the API. Removed.
 
-export async function retrieveRelevantContext(query: string, k: number = 3): Promise<string> {
+export async function retrieveRelevantContext(query: string, owner: string, repo: string, apiKey: string, k: number = 3): Promise<string> {
     console.log(`[RETRIEVER] 🕵️ Searching codebase for: "${query.slice(0, 50)}..."`);
 
-    const vectorStore = await getVectorStore();
+    const vectorStore = await getVectorStore(owner, repo, apiKey);
 
     // FIX (Bug): Original code swallowed the "not initialized" case by returning ""
     if (!vectorStore) {
         console.warn(
-            "[RETRIEVER] ⚠️  Vector store not initialized — did indexCodebase() run? Returning empty context."
+            `[RETRIEVER] ⚠️  Vector store not initialized for ${owner}/${repo} — did indexRepository run? Returning empty context.`
         );
         return "";
     }

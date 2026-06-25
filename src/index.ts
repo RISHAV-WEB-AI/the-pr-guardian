@@ -9,7 +9,7 @@ import { AsyncLocalStorage } from "async_hooks";
 
 import { getPRDiff, postReviewFeedback } from "./server/github";
 import { buildGraph } from "./orchestrator/graph";
-import { indexCodebase } from "./indexing/indexer";
+import { indexRepository } from "./indexing/indexer";
 import { retrieveRelevantContext } from "./indexing/retriever";
 import { getReviewLLM } from "./ai/provider";
 import { saveAuditRecord, getHistory } from "./server/history";
@@ -45,14 +45,15 @@ app.get("/api/history", async (req, res) => {
 // Dashboard Chatbot API
 app.post("/api/chat", async (req, res) => {
     try {
-        const { query, githubUsername } = req.body;
+        const { query, githubUsername, owner, repo } = req.body;
         if (!query) return res.status(400).json({ error: "Query is required" });
         if (!githubUsername) return res.status(400).json({ error: "GitHub username is required" });
+        if (!owner || !repo) return res.status(400).json({ error: "Repository owner and name are required" });
 
         const apiKey = await getApiKeyForUser(githubUsername);
         if (!apiKey) return res.status(403).json({ error: "No API key configured." });
         
-        const context = await retrieveRelevantContext(query, 5);
+        const context = await retrieveRelevantContext(query, owner, repo, apiKey, 5);
         const prompt = `You are an expert autonomous AI developer assistant. Answer the user's question based on the provided codebase context.\n\nCodebase Context:\n${context || "No relevant codebase context found."}\n\nQuestion:\n${query}`;
         
         const llm = getReviewLLM(apiKey);
@@ -110,9 +111,17 @@ app.post("/webhook/github", async (req: express.Request, res: express.Response) 
     console.log(`[DETECTOR] Processing event: ${event}, Action: ${req.body?.action}`);
 
     if (event === "push") {
+        const repoName = req.body.repository?.name;
+        const ownerName = req.body.repository?.owner?.login;
         console.log(`[INDEXER] Push detected on ${req.body.ref}. Triggering re-index...`);
         res.status(202).send("Re-indexing started.");
-        indexCodebase().catch(e => console.error(`[INDEXER] Background indexing failed: ${e.message}`));
+        if (repoName && ownerName) {
+            getApiKeyForUser(ownerName).then(apiKey => {
+                if (apiKey) {
+                    indexRepository(ownerName, repoName, apiKey).catch((e: any) => console.error(`[INDEXER] Background indexing failed: ${e.message}`));
+                }
+            });
+        }
         return;
     }
 

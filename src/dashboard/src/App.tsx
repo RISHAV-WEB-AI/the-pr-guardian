@@ -282,7 +282,7 @@ export default function App() {
       <LogModal pr={selectedPR} onClose={() => setSelectedPR(null)} />
       <SettingsModal session={session} isOpen={showSettings} onClose={() => setShowSettings(false)} />
       <SetupGuideModal isOpen={showSetupGuide} onClose={() => setShowSetupGuide(false)} />
-      <Chatbot session={session} />
+      <Chatbot session={session} selectedPR={selectedPR} />
 
       <style>{`
         .mesh-gradient {
@@ -1072,7 +1072,7 @@ function CustomTooltip({ active, payload, label }: any) {
   return null;
 }
 
-function Chatbot({ session }: any) {
+function Chatbot({ session, selectedPR }: any) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [chat, setChat] = useState<{role: 'user' | 'bot', text: string}[]>([]);
@@ -1080,6 +1080,11 @@ function Chatbot({ session }: any) {
 
   const handleSend = async () => {
     if (!query.trim()) return;
+    if (!selectedPR) {
+      setChat(prev => [...prev, { role: 'user', text: query }, { role: 'bot', text: 'Please select a PR from the table first so I know which repository to query.' }]);
+      setQuery('');
+      return;
+    }
     setChat(prev => [...prev, { role: 'user', text: query }]);
     setQuery('');
     setLoading(true);
@@ -1092,10 +1097,15 @@ function Chatbot({ session }: any) {
       if (!githubUsername) {
           githubUsername = session?.user?.email?.split('@')[0] || 'unknown';
       }
-      const res = await axios.post(`${API_URL}/api/chat`, { query, githubUsername });
+      const res = await axios.post(`${API_URL}/api/chat`, { 
+        query, 
+        githubUsername,
+        owner: selectedPR.owner,
+        repo: selectedPR.repo
+      });
       setChat(prev => [...prev, { role: 'bot', text: res.data.answer }]);
-    } catch (e) {
-      setChat(prev => [...prev, { role: 'bot', text: 'Error: Failed to fetch response from core.' }]);
+    } catch (e: any) {
+      setChat(prev => [...prev, { role: 'bot', text: `Error: ${e.response?.data?.error || 'Failed to fetch response from core.'}` }]);
     } finally {
       setLoading(false);
     }

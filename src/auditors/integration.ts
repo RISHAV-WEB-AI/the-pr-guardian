@@ -11,7 +11,7 @@ export const integrationAuditorNode = async (state: ReviewState): Promise<Partia
 
   let ragContext = "";
   try {
-    ragContext = await retrieveRelevantContext(state.prDiff.slice(0, 1000));
+    ragContext = await retrieveRelevantContext(state.prDiff.slice(0, 1000), state.owner, state.repo, state.geminiApiKey);
   } catch (e) {
     console.warn("[INTEGRATION] RAG retrieval failed, falling back to standard analysis.");
   }

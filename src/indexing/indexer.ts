@@ -1,13 +1,18 @@
 import { SimpleMemoryVectorStore } from "./memory_store";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
-import { embeddings } from "../ai/provider";
+import { getEmbeddings } from "../ai/provider";
 import fs from "fs/promises";
 import { existsSync } from "fs";
 import path from "path";
+import os from "os";
+import { exec } from "child_process";
+import { promisify } from "util";
 import "dotenv/config";
 
-const DIRECTORY_TO_INDEX = path.join(process.cwd(), "src");
-let vectorStore: SimpleMemoryVectorStore | null = null;
+const execAsync = promisify(exec);
+
+// Cache per owner/repo
+const vectorStoreCache = new Map<string, SimpleMemoryVectorStore>();
 
 /**
  * Recursively scans a directory for code files asynchronously.
@@ -26,7 +31,7 @@ async function getAllCodeFiles(dir: string): Promise<string[]> {
                 fileList.push(...subFiles);
             }
         } else {
-            if (/\.(ts|js|tsx|jsx)$/.test(file)) {
+            if (/\.(ts|js|tsx|jsx|py|go|rs|md|json)$/.test(file)) {
                 fileList.push(filePath);
             }
         }
@@ -35,74 +40,87 @@ async function getAllCodeFiles(dir: string): Promise<string[]> {
 }
 
 /**
- * Indexes the entire codebase into an in-memory vector store.
+ * Indexes the specified repository codebase into an in-memory vector store.
  */
-export async function indexCodebase() {
-    console.log(`[INDEXER] 🔍 Scanning codebase in: ${DIRECTORY_TO_INDEX}`);
+export async function indexRepository(owner: string, repo: string, apiKey: string): Promise<SimpleMemoryVectorStore | null> {
+    const repoKey = `${owner}/${repo}`;
+    console.log(`[INDEXER] 🔍 Indexing repository: ${repoKey}`);
 
-    if (!existsSync(DIRECTORY_TO_INDEX)) {
-        console.warn(`[INDEXER] ⚠️  Directory to index does not exist: ${DIRECTORY_TO_INDEX}`);
-        return;
-    }
-
-    const files = await getAllCodeFiles(DIRECTORY_TO_INDEX);
-    console.log(`[INDEXER] Found ${files.length} code files.`);
-
-    const documents = [];
-    const splitter = new RecursiveCharacterTextSplitter({
-        chunkSize: 1000,
-        chunkOverlap: 200,
-    });
-
-    for (const file of files) {
-        try {
-            const content = await fs.readFile(file, "utf-8");
-            const relativePath = path.relative(process.cwd(), file);
-
-            const chunks = await splitter.createDocuments(
-                [content],
-                [{ source: relativePath }]
-            );
-            documents.push(...chunks);
-        } catch (err: any) {
-            console.warn(`[INDEXER] ⚠️  Skipping unreadable file: ${file} — ${err.message}`);
-        }
-    }
-
-    if (documents.length === 0) {
-        console.warn("[INDEXER] ⚠️  No documents to index. Vector store will not be created.");
-        return;
-    }
-
-    console.log(`[INDEXER] 📝 Creating Memory index for ${documents.length} code chunks...`);
-
+    const tmpDir = path.join(os.tmpdir(), "pr-guardian-index", repoKey.replace("/", "-"));
+    
     try {
-        vectorStore = await SimpleMemoryVectorStore.fromDocuments(documents, embeddings);
-        console.log(`[INDEXER] ✅ Codebase successfully indexed in memory.`);
+        // Clean up previous if exists
+        if (existsSync(tmpDir)) {
+            await fs.rm(tmpDir, { recursive: true, force: true });
+        }
+        await fs.mkdir(tmpDir, { recursive: true });
+
+        console.log(`[INDEXER] 📥 Cloning repository ${repoKey} into temporary directory...`);
+        // We use shallow clone for speed
+        const cloneUrl = `https://github.com/${owner}/${repo}.git`;
+        await execAsync(`git clone --depth 1 ${cloneUrl} "${tmpDir}"`);
+        
+        const files = await getAllCodeFiles(tmpDir);
+        console.log(`[INDEXER] Found ${files.length} code files in ${repoKey}.`);
+
+        const documents = [];
+        const splitter = new RecursiveCharacterTextSplitter({
+            chunkSize: 1000,
+            chunkOverlap: 200,
+        });
+
+        for (const file of files) {
+            try {
+                const content = await fs.readFile(file, "utf-8");
+                const relativePath = path.relative(tmpDir, file);
+
+                const chunks = await splitter.createDocuments(
+                    [content],
+                    [{ source: relativePath, repo: repoKey }]
+                );
+                documents.push(...chunks);
+            } catch (err: any) {
+                console.warn(`[INDEXER] ⚠️  Skipping unreadable file: ${file} — ${err.message}`);
+            }
+        }
+
+        if (documents.length === 0) {
+            console.warn(`[INDEXER] ⚠️  No documents to index for ${repoKey}.`);
+            return null;
+        }
+
+        console.log(`[INDEXER] 📝 Creating Memory index for ${documents.length} code chunks...`);
+
+        const embeddings = getEmbeddings(apiKey);
+        const store = await SimpleMemoryVectorStore.fromDocuments(documents, embeddings);
+        
+        vectorStoreCache.set(repoKey, store);
+        console.log(`[INDEXER] ✅ Codebase for ${repoKey} successfully indexed in memory.`);
+        return store;
+        
     } catch (err: any) {
-        console.error(`[INDEXER] ❌ Failed to create/save vector store: ${err.message}`);
-        if (err.message.includes("404") || err.message.includes("not found")) {
-            console.error("[INDEXER] Hint: The embedding model might be unavailable in your region or misspelled.");
-        }
+        console.error(`[INDEXER] ❌ Failed to index repository ${repoKey}: ${err.message}`);
         throw err;
+    } finally {
+        // Clean up tmp dir to free space
+        if (existsSync(tmpDir)) {
+            await fs.rm(tmpDir, { recursive: true, force: true }).catch(e => console.warn("Failed to clean tmp dir:", e));
+        }
     }
 }
 
-
-export async function getVectorStore() {
-    if (vectorStore) {
-        return vectorStore;
+export async function getVectorStore(owner: string, repo: string, apiKey: string): Promise<SimpleMemoryVectorStore | null> {
+    const repoKey = `${owner}/${repo}`;
+    
+    if (vectorStoreCache.has(repoKey)) {
+        return vectorStoreCache.get(repoKey)!;
     }
 
     try {
-        await indexCodebase();
+        const store = await indexRepository(owner, repo, apiKey);
+        return store;
     } catch (err) {
-        console.error("[INDEXER] Background indexing failed:", err);
+        console.error(`[INDEXER] Background indexing failed for ${repoKey}:`, err);
+        return null;
     }
-    return vectorStore;
-}
-
-// Support for running directly
-if (require.main === module) {
-    indexCodebase().catch(console.error);
 }
